@@ -1,0 +1,29 @@
+#+Title: Project Plan
+#+Author: Yogesh Agrawal
+#+Email: yogeshiiith@gmail.com
+#+Date: <2016-06-14 Tue>
+
+* Plan
+  Following is the rough plan. This will evolve.
+  |-----------+-------------------------------------------|
+  | *Day      | Tasks*                                    |
+  |-----------+-------------------------------------------|
+  | Tuesday   | Create repo. Understand elasticsearch,    |
+  |           | logstash and kibana. Get AWS account.     |
+  |-----------+-------------------------------------------|
+  | Wednesday | Based on the above understanding, create  |
+  |           | instances in aws.                         |
+  |           | Install docker and deploy docker image.   |
+  |-----------+-------------------------------------------|
+  | Thursday  | Work on ansible playbooks, shell scripts. |
+  |-----------+-------------------------------------------|
+  | Friday    |                                           |
+  |-----------+-------------------------------------------|
+  | Saturday  | Multiple testing.                         |
+  |-----------+-------------------------------------------|
+
+* Tasks
+  1. Read about ELK stack (Elasticsearch, Logstash, Kibana)
+  2. Read about Docker Compose
+  3. Read about monitoring AWS resources using ELK based centralised
+     logging and monitoring infrastructure.
