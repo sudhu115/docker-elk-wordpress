@@ -11,39 +11,49 @@
   | Tuesday   | Create repo. Understand elasticsearch,    |
   |           | logstash and kibana. Get AWS account.     |
   |-----------+-------------------------------------------|
-  | Wednesday | Based on the above understanding, create  |
-  |           | instances in aws.                         |
-  |           | Install docker and deploy docker image.   |
+  | Wednesday | Revise docker and create docker instance. |
+  |           | in aws.                                   |
   |-----------+-------------------------------------------|
-  | Thursday  | Work on ansible playbooks, shell scripts. |
+  | Thursday  | Do the app deployment manually. Write     |
+  |           | docker file, compose.                     |
   |-----------+-------------------------------------------|
-  | Friday    |                                           |
+  | Friday    | Work on ansible playbooks, shell scripts. |
   |-----------+-------------------------------------------|
   | Saturday  | Multiple testing.                         |
   |-----------+-------------------------------------------|
+
+
 * Tasks
-  1. Read about ELK stack (Elasticsearch, Logstash, Kibana)
-  2. Read about Docker Compose
-  3. Read about monitoring AWS resources using ELK based centralised
-     logging and monitoring infrastructure.
-* Days
 ** Wednesday
-**** Read about elastic search
-     refer:
-     https://info.elastic.co/2016-03-AB-Test-Getting-Started-ES_Video.html?aliId=43498650
-***** ElasticSearch
-      1. JSON Document-oriented search engine
-      2. Built on top of Apache Lucene
-      3. Schema Free / Schema-Less
-      4. Scales Up + Out
-      5. refer:
-         https://info.elastic.co/2016-03-AB-Test-Getting-Started-ES_Video.html?aliId=43498650
-***** Kibana
-      1. Allows to create dashboard.
-      2. We can visualize data.
-      3. refer:
-         https://www.elastic.co/webinars/kibana-101-get-started-with-visualizations?baymax=rtp&elektra=products&iesrc=ctr
-***** Logstash
-      1. log parser
-      2. refer:
-         https://www.elastic.co/webinars/logstash-0-60-in-60?baymax=rtp&elektra=products&iesrc=ctr
+*** Learn Elastic search stack
+    refer:
+    https://info.elastic.co/2016-03-AB-Test-Getting-Started-ES_Video.html?aliId=43498650
+**** ElasticSearch
+     1. JSON Document-oriented search engine
+     2. Built on top of Apache Lucene
+     3. Schema Free / Schema-Less
+     4. Scales Up + Out
+     5. refer:
+        https://info.elastic.co/2016-03-AB-Test-Getting-Started-ES_Video.html?aliId=43498650
+**** Kibana
+     1. Allows to create dashboard.
+     2. We can visualize data.
+     3. refer:
+        https://www.elastic.co/webinars/kibana-101-get-started-with-visualizations?baymax=rtp&elektra=products&iesrc=ctr
+**** Logstash
+     1. log parser
+     2. refer:
+        https://www.elastic.co/webinars/logstash-0-60-in-60?baymax=rtp&elektra=products&iesrc=ctr
+*** Revise Docker
+    1. https://training.docker.com/self-paced-training
+    2. https://hub.docker.com/_/wordpress/
+
+*** Get AWS account
+    For some reason aws account is not accepting my card. So raised
+    support request to aws support team.
+
+** Thursday
+   1. Create aws instance.
+   2. Setup docker daemon on it.
+   3. Setup elastic search, wordpress images.
+   4. Should be able to visualize the logs.
