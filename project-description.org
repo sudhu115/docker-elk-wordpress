@@ -2,7 +2,6 @@
 #+Author: Yogesh Agrawal
 #+Email: yogeshiiith@gmail.com
 #+Date: <2016-06-14 Tue>
-#+Time: 20:00
 
 * Introduction
   This document describes requirement, design, implementation and
@@ -26,11 +25,19 @@
   3. Deploy dockerized WordPress based blogging application.
   4. Monitor the AWS resources and the blogging application using you
      ELK based centralised logging and monitoring infrastructure.
-  5. For bonus points: Demonstrate your knowledge and understanding by
-     preparing an insightful dashboard of your choice.
+  5. Demonstrate your knowledge and understanding by preparing an
+     insightful dashboard of your choice.
 
   Use the official WordPress Docker image to run a web application and
   monitor it using the centralised logging setup that is built above.
+
+* Design
+  Wordpress service can be run inside a container. Elastic stack could
+  run inside a separate container. These two containers are then
+  linked together.
+
+  If we wish to scale in future elastic search, logstash and kibana
+  all of them can be run from a separate container each.
 
 * Specifications
   - OS: Ubuntu Server 14.04 64-bit
