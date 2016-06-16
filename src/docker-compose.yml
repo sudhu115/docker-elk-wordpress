@@ -6,7 +6,7 @@ elasticsearch:
       - "9300:9300"
 
 logstash:
-    image: logstash:latest
+    build: logstash/
     command: logstash -f /etc/logstash/conf.d/logstash.conf
     volumes:
       - ./logstash/config:/etc/logstash/conf.d
@@ -16,7 +16,7 @@ logstash:
       - elasticsearch
 
 kibana:
-    image: kibana:latest
+    build: kibana/
     volumes:
       - ./kibana/config:/opt/kibana/config
     ports:
