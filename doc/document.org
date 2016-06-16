@@ -18,6 +18,24 @@
   - Make it searchable in fast and meaningful way.
   - Use powerful analytics to summarize data across many dimensions.
 
+* Infrastructure Decision
+  Blogging is not a resource intensive application. It does not
+  require compute intensive engine to run.
+
+  We need to make some assumptions about the usage of the blogging
+  application. Based on the assumptions we will decide the resources
+  to be allocated to the VM.
+
+  Suppose there are 50 employees in the organization. From those
+  employees only few of them blogs. Lets assume they generate 10
+  blogs/week on an average. Each blog would be of size 4kb. So per
+  week 4*10 = 40kb of data will be generated. And per month 40*4 =
+  160kb. Per year it would be around 2mb. So disk usage is not much.
+  We can go with 512mb of hard disk.
+
+  ELK is based on java. jvm hogs high amount of memory. We will need
+  atleast 4gb of memory, with single processor.
+
 * Provisioning of AWS instance (Manual)
 ** EC2 details
    1. os: ubuntu-14.04 server 64-bit
