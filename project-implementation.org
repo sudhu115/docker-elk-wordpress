@@ -1,0 +1,51 @@
+#+Title: Wordpress Cloud Deployment Project
+#+Author: Yogesh Agrawal
+#+Email: yogeshiiith@gmail.com
+#+Date: <2016-06-16 Thu>
+
+* Introduction
+  This document describes the implementation of the project.
+
+* Design
+  Wordpress service can be run inside a container. Elastic stack could
+  run inside a separate container. These two containers are then
+  linked together.
+
+  If we wish to scale in future elastic search, logstash and kibana
+  all of them can be run from a separate container each.
+
+* Provisioning of AWS instance
+** EC2 details
+   1. os: ubuntu-14.04 server 64-bit
+   2. 30 GB Hard disk
+   3. Public ip: 52.34.60.217
+   4. Region: Oregon
+** Packages Installed
+*** Install docker 1.10
+    1. 
+       #+BEGIN_EXAMPLE
+       $ sudo apt-get update
+       $ sudo apt-get install apt-transport-https ca-certificates
+       $ sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+       #+END_EXAMPLE
+
+    2. Edit =/etc/apt/sources.list.d/docker.list= file
+       #+BEGIN_EXAMPLE
+       deb https://apt.dockerproject.org/repo ubuntu-trusty main
+       #+END_EXAMPLE
+    3. 
+       #+BEGIN_EXAMPLE
+       $ sudo apt-get update
+       $ sudo apt-get purge lxc-docker
+       $ apt-cache policy docker-engine
+       $ sudo apt-get install linux-image-extra-$(uname -r)
+       $ sudo apt-get update
+       $ sudo apt-get install docker-engine
+       $ sudo service docker start
+       $ sudo docker run hello-world
+       #+END_EXAMPLE
+    4. Configure group, and then logout and logback in
+       #+BEGIN_EXAMPLE
+       $ sudo usermod -aG docker ubuntu
+       #+END_EXAMPLE
+    5. 

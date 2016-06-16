@@ -4,8 +4,8 @@
 #+Date: <2016-06-14 Tue>
 
 * Introduction
-  This document describes requirement, design, implementation and
-  evaluation of the cloud deployment project.
+  This document describes requirement, specifications and evaluation
+  of the cloud deployment project.
 
 * Project Description
   A blogging application in Wordpress is to be deployed on the AWS
@@ -30,14 +30,6 @@
 
   Use the official WordPress Docker image to run a web application and
   monitor it using the centralised logging setup that is built above.
-
-* Design
-  Wordpress service can be run inside a container. Elastic stack could
-  run inside a separate container. These two containers are then
-  linked together.
-
-  If we wish to scale in future elastic search, logstash and kibana
-  all of them can be run from a separate container each.
 
 * Specifications
   - OS: Ubuntu Server 14.04 64-bit
