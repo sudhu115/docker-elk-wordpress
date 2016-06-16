@@ -1,0 +1,37 @@
+#+Title: Project Plan
+#+Author: Yogesh Agrawal
+#+Email: yogeshiiith@gmail.com
+#+Date: <2016-06-14 Tue>
+
+* Plan
+  Following is the rough plan. This will evolve.
+  |-----------+-------------------------------------------|
+  | *Day      | Tasks*                                    |
+  |-----------+-------------------------------------------|
+  | Tuesday   | Create repo. Understand elasticsearch,    |
+  |           | logstash and kibana. Get AWS account.     |
+  |-----------+-------------------------------------------|
+  | Wednesday | Revise docker and create docker instance. |
+  |           | in aws.                                   |
+  |-----------+-------------------------------------------|
+  | Thursday  | Do the app deployment manually. Write     |
+  |           | docker file, compose.                     |
+  |-----------+-------------------------------------------|
+  | Friday    | Work on ansible playbooks, shell scripts. |
+  |-----------+-------------------------------------------|
+  | Saturday  | Multiple testing.                         |
+  |-----------+-------------------------------------------|
+
+* Emulate target environment
+  - Setup docker in my workstation.
+  - Setup dockerized ELK setup.
+  - Setup docekerized wordpress.
+  - Visualize wordpress logs using kibana.
+
+* AWS Setup
+  - Instantiate AWS vm using Ansible.
+  - Configure instance using Ansible.
+  - Run dockerized wordpress setup.
+  - Run ELK setup.
+  - Create dashboard.
+  - Monitor logs using dashboard.

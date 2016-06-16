@@ -1,0 +1,90 @@
+#+Title: Wordpress Cloud Deployment Project
+#+Author: Yogesh Agrawal
+#+Email: yogeshiiith@gmail.com
+#+Date: <2016-06-16 Thu>
+
+* Introduction
+  This document describes the design and implementation of the
+  project.
+
+* Design
+  Wordpress service runs inside a container. ELK stack - Elastic
+  search, Logstash and Kibana runs from a three different containers.
+
+  [[../arch/architecture-design-diagram.jpeg]]
+
+* ELK Stack
+  - Collect all logs.
+  - Make it searchable in fast and meaningful way.
+  - Use powerful analytics to summarize data across many dimensions.
+
+* Provisioning of AWS instance (Manual)
+** EC2 details
+   1. os: ubuntu-14.04 server 64-bit
+   2. 30 GB Hard disk
+   3. Public ip: 52.34.60.217
+   4. Region: Oregon
+   5. Open ports:
+      - 5000: Logstash.
+      - 9200: Elasticsearch HTTP
+      - 9300: Elasticsearch TCP transport
+      - 5601: Kibana
+      - 80: http
+      - 22: ssh
+
+** Packages Installed
+*** Install docker 1.10
+    1. 
+       #+BEGIN_EXAMPLE
+       $ sudo apt-get update
+       $ sudo apt-get install apt-transport-https ca-certificates
+       $ sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+       #+END_EXAMPLE
+
+    2. Edit =/etc/apt/sources.list.d/docker.list= file
+       #+BEGIN_EXAMPLE
+       deb https://apt.dockerproject.org/repo ubuntu-trusty main
+       #+END_EXAMPLE
+    3. 
+       #+BEGIN_EXAMPLE
+       $ sudo apt-get update
+       $ sudo apt-get purge lxc-docker
+       $ apt-cache policy docker-engine
+       $ sudo apt-get install linux-image-extra-$(uname -r)
+       $ sudo apt-get update
+       $ sudo apt-get install docker-engine
+       $ sudo service docker start
+       $ sudo docker run hello-world
+       #+END_EXAMPLE
+    4. Configure group, and then logout and logback in
+       #+BEGIN_EXAMPLE
+       $ sudo usermod -aG docker ubuntu
+       #+END_EXAMPLE
+    5. 
+*** Install docker compose
+    #+BEGIN_EXAMPLE
+    $ sudo su -
+    $ curl -L https://github.com/docker/compose/releases/download/1.7.1/docker-compose-Linux-x86_64 > /usr/local/bin/docker-compose
+    $ chmod +x /usr/local/bin/docker-compose
+    $ docker-compose --version
+    #+END_EXAMPLE
+** ELK Stack
+   - Create docker-compose.yml
+   - Create docker files for kibana, logstash
+   - Run compose
+     #+BEGIN_EXAMPLE
+     docker-compose -f docker-compose.yml up
+     #+END_EXAMPLE
+   - Add logs to elasticsearch
+     #+BEGIN_EXAMPLE
+     nc localhost 5000 < /var/log/auth.log
+     #+END_EXAMPLE
+   - Unable to access aws kibana due to ram exhaustion
+     #+BEGIN_EXAMPLE
+     Every 2.0s: free -m                                                                                                      Thu Jun 16 13:06:26 2016
+     
+             total       used       free     shared    buffers     cached
+     Mem:           588        581          6          0          0          2
+     -/+ buffers/cache:        579          9
+     Swap:            0          0          0
+     #+END_EXAMPLE

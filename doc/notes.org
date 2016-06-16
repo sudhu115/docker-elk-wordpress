@@ -1,31 +1,12 @@
-#+Title: Project Plan
+#+Title: Notes
 #+Author: Yogesh Agrawal
 #+Email: yogeshiiith@gmail.com
-#+Date: <2016-06-14 Tue>
-
-* Plan
-  Following is the rough plan. This will evolve.
-  |-----------+-------------------------------------------|
-  | *Day      | Tasks*                                    |
-  |-----------+-------------------------------------------|
-  | Tuesday   | Create repo. Understand elasticsearch,    |
-  |           | logstash and kibana. Get AWS account.     |
-  |-----------+-------------------------------------------|
-  | Wednesday | Revise docker and create docker instance. |
-  |           | in aws.                                   |
-  |-----------+-------------------------------------------|
-  | Thursday  | Do the app deployment manually. Write     |
-  |           | docker file, compose.                     |
-  |-----------+-------------------------------------------|
-  | Friday    | Work on ansible playbooks, shell scripts. |
-  |-----------+-------------------------------------------|
-  | Saturday  | Multiple testing.                         |
-  |-----------+-------------------------------------------|
+#+Date: <2016-06-17 Fri>
 
 
 * Tasks
 ** Wednesday
-*** Learn Elastic search stack
+*** Elastic search stack
     refer:
     https://info.elastic.co/2016-03-AB-Test-Getting-Started-ES_Video.html?aliId=43498650
 **** ElasticSearch
@@ -44,11 +25,11 @@
      1. log parser
      2. refer:
         https://www.elastic.co/webinars/logstash-0-60-in-60?baymax=rtp&elektra=products&iesrc=ctr
-*** Revise Docker
+*** Docker
     1. https://training.docker.com/self-paced-training
     2. https://hub.docker.com/_/wordpress/
 
-*** Get AWS account
+*** AWS account
     For some reason aws account is not accepting my card. So raised
     support request to aws support team.
 
