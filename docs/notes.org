@@ -38,3 +38,10 @@
    2. Setup docker daemon on it.
    3. Setup elastic search, wordpress images.
    4. Should be able to visualize the logs.
+** Friday
+   1. Capture apache server docker logs.
+   2. Find a way to feed the logs to elasticsearch container.
+   3. Visualize wordpress logs in kibana.
+   4. Instantiate aws vm via ansible.
+   5. Setup wordpress via nginx
+   6. 
