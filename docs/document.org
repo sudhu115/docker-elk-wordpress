@@ -135,6 +135,13 @@
   #+BEGIN_EXAMPLE
   *.* <ip-address-logstash>:<port>
   #+END_EXAMPLE
+* Logging drivers
+  The container can have a logging driver. We can use the
+  =--log-driver= with the docker run command. All the logs generated
+  inside the container will be sent via log driver to a remote host.
+  #+BEGIN_EXAMPLE
+  docker run -t -d --log-driver=syslog --log-opt syslog-address=tcp://172.17.0.4:25826 app'
+  #+END_EXAMPLE
 * References
   1. https://docs.docker.com/engine/userguide/containers/dockervolumes/
   2. https://www.elastic.co/webinars/introduction-elk-stack
@@ -142,4 +149,4 @@
   4. https://docs.docker.com/engine/userguide/containers/dockervolumes/
   5. https://github.com/docker-library/php/issues/80
   6. https://blog.logentries.com/2014/03/the-state-of-logging-on-docker/
-
+  7. https://docs.docker.com/engine/admin/logging/overview/
