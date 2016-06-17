@@ -106,3 +106,40 @@
      -/+ buffers/cache:        579          9
      Swap:            0          0          0
      #+END_EXAMPLE
+* Access logs
+  To view the apache access logs:
+  #+BEGIN_EXAMPLE
+  docker logs -f <container-id>
+  #+END_EXAMPLE
+* Manage data in containers
+** Data volumes
+   A data volume is a specially designated directory within one or
+   more containers. Data volumes provide several useful features for
+   persistent or shared data.
+
+   Data volume are designed to persist data, independent of the
+   container's life cycle. Docker therefore never automatically
+   deletes volumes when you remove a container.
+
+* Docker logs
+  Docker captures the STDOUT and STDERR of each container process,
+  stores it on disk. User can query for the logs from the host machine
+  using
+  #+BEGIN_EXAMPLE
+  docker logs <container-id>
+  #+END_EXAMPLE
+
+  Using rsyslog service, we can forward the logs to logstash
+  container. Configure =/etc/rsyslog.d/logstash.conf= file in
+  wordpress container as follows:
+  #+BEGIN_EXAMPLE
+  *.* <ip-address-logstash>:<port>
+  #+END_EXAMPLE
+* References
+  1. https://docs.docker.com/engine/userguide/containers/dockervolumes/
+  2. https://www.elastic.co/webinars/introduction-elk-stack
+  3. https://www.linode.com/docs/databases/elasticsearch/visualizing-apache-webserver-logs-in-the-elk-stack-on-debian-8
+  4. https://docs.docker.com/engine/userguide/containers/dockervolumes/
+  5. https://github.com/docker-library/php/issues/80
+  6. https://blog.logentries.com/2014/03/the-state-of-logging-on-docker/
+
