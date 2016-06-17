@@ -4,9 +4,9 @@ wordpress:
    - db:mysql
  ports:
    - 8081:80
- log_driver: gelf
+ log_driver: syslog
  log_opt:
-   gelf-address: "udp://172.17.0.6:12201"
+   syslog-address: "tcp://172.17.0.4:25826"
 # volumes:
 #  - /var/log/docker:/var/log/apache2
 
