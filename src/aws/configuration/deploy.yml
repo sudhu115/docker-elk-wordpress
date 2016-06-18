@@ -3,15 +3,16 @@
 - name: Deploy ELK Stack
   hosts: vm
   remote_user: ubuntu
+  gather_facts: False
 
 
   tasks:
 
     - name: Copy application configuration
-      synchronize: src=../../docker/application dest=/home/ubuntu/
+      copy: src=../../docker/application dest=/home/ubuntu/
 
     - name: Copy elk-stack configuration
-      synchronize: src=../../docker/elk-stack dest=/home/ubuntu/
+      copy: src=../../docker/elk-stack dest=/home/ubuntu/
 
     - name: Build elk docker images
       command: docker-compose -f docker-elk.yml build
