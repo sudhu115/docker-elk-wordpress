@@ -67,7 +67,7 @@
       https://www.elastic.co/webinars/kibana-101-get-started-with-visualizations?baymax=rtp&elektra=products&iesrc=ctr
 
 ** Logstash
-   1. log parser.
+   1. Log parser.
    2. Collect all logs.
    3. Make it searchable in fast and meaningful way.
    4. Use powerful analytics to summarize data across many dimensions.
@@ -134,7 +134,8 @@
    authenticates to aws using user access and secret key.
 
 ** Configure instance
-   Instance is configured with docker, to create containers.
+   Instance is configured via Ansible playbook. We install docker
+   engine inside the vm to create docker containers.
 
 *** Install docker 1.10
     1. Install docker 
@@ -175,12 +176,28 @@
     #+END_EXAMPLE
 ** Create containers
 *** ELK Stack
-    - Create docker-elk.yml
-    - Run compose
+    ELK stack is configured via docker-compose file. Compose file
+    setup all the stack components one by one. Compose file builds the
+    customized images using the official images. It then creates the
+    container and configures them for our use.
+    
+    The services running inside the containers needs to communicate
+    between each other. Logstash sends its parsed logs to
+    elasticsearch container. That means they need to communicate over
+    some specified port. Docker provides a way to allow communication
+    between containers, by setting =links= option. When we links
+    client container to the server, will see an entry in =/etc/hosts=
+    file of the client, something similar to.
+
+    - Command to build images
       #+BEGIN_EXAMPLE
-      docker-compose -f docker-compose.yml up
+      docker-compose -f docker-elk.yml build
       #+END_EXAMPLE
-    - Test adding logs to elasticsearch
+    - Command to run compose in background.
+      #+BEGIN_EXAMPLE
+      docker-compose -f docker-elk.yml up -d
+      #+END_EXAMPLE
+    - Adding logs to logstash.
       #+BEGIN_EXAMPLE
       nc localhost 5000 < /var/log/auth.log
       #+END_EXAMPLE
