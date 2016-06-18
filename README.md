@@ -24,6 +24,7 @@
 
   
 # Specifications
+
   - OS: Ubuntu Server 14.04 64-bit
   - App Server: Gunicorn/Nginx
   - Python: 2.7
@@ -33,3 +34,9 @@
   - ElasticSearch
   - Logstash
   - Kibana
+
+# Further reading
+
+  For understanding the setup steps and documentation related to the project, please refer
+  https://github.com/ayogi/docker-elk-wordpress/blob/master/docs/document.org
+
