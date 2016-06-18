@@ -3,6 +3,7 @@
 *.out
 *~
 *.pem
+*.html
 .#*
 *#
 aws-credentials.yml
