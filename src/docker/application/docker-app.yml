@@ -3,13 +3,13 @@ wordpress:
  container_name: wordpress
  ports:
    - "8081:80"
- log_driver: syslog
- log_opt:
-   syslog-address: "tcp://logstash:25826"
  links:
    - db:mysql
  external_links:
    - logstash
+ log_driver: syslog
+ log_opt:
+   syslog-address: "tcp://172.17.0.3:25826"
 
 db:
  build: mysql/
