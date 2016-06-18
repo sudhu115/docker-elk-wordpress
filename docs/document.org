@@ -1,4 +1,4 @@
-#+Title: Wordpress Cloud Deployment Project
+#+Title: Docker ELK Wordpress Project
 #+Author: Yogesh Agrawal
 #+Email: yogeshiiith@gmail.com
 #+Date: <2016-06-16 Thu>
@@ -8,6 +8,50 @@
   docker compose based application deployment and centralized logging
   using Elasticsearch, Logstash and Kibana stack.
 
+* Directory structure of this repo
+  #+BEGIN_EXAMPLE
+  .
+|-- arch
+|   |-- architecture-design-diagram.dia
+|   |-- architecture-design-diagram.jpeg
+|   `-- aws-ram-usage.png
+|-- docs
+|   |-- document.org
+|   |-- notes.org
+|   |-- personal-notes.org
+|   `-- plan.org
+|-- README.md
+`-- src
+    |-- aws
+    |   |-- hosts
+    |   |-- provision.yml
+    |   `-- vars
+    |       |-- aws-credentials.yml
+    |       `-- specs.yml
+    `-- docker
+        |-- application
+        |   |-- docker-app.yml
+        |   |-- mysql
+        |   |   `-- Dockerfile
+        |   `-- wordpress
+        |       `-- Dockerfile
+        `-- elk-stack
+            |-- docker-elk.yml
+            |-- elasticsearch
+            |   `-- Dockerfile
+            |-- filter
+            |-- kibana
+            |   |-- config
+            |   |   `-- kibana.yml
+            |   |-- Dockerfile
+            |   `-- sample-log-visualization
+            |       |-- kibana-visualization-1.png
+            |       `-- kibana-visualization-2.png
+            `-- logstash
+                |-- config
+                |   `-- logstash.conf
+                `-- Dockerfile
+  #+END_EXAMPLE
 * Design
   The infrastructure is setup in the cloud environment - AWS. An EC2
   instance is created with the minimal requirement. The rational
