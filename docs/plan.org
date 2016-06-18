@@ -44,3 +44,7 @@
    3. Now work on instantiating aws vm via ansible.
 
 ** Day5
+   - Document the setup process.
+   
+* Todo
+
