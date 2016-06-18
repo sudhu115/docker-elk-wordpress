@@ -1,0 +1,27 @@
+---
+
+- name: Lauch AWS Infrastructure
+  hosts: localhost
+  connection: local
+  gather_facts: False
+
+  vars_files:
+    - vars/aws-credentials.yml
+    - vars/specs.yml
+
+  tasks:
+
+  - name: Create EC-2 instance
+    ec2:
+      region: "{{ ec2_region }}"
+      ec2_access_key: "{{ user_access_key }}"
+      ec2_secret_key: "{{ user_secret_key }}"
+      instance_type: "{{ instance_type }}"
+      image: "{{ ami_id }}"
+      instance_tags:
+            Name: docker-elk-wordpress
+      exact_count: 1
+      count_tag:
+            Name: docker-elk-wordpress
+      wait: true
+    register: ec2
