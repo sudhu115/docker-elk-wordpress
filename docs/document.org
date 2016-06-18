@@ -5,44 +5,123 @@
 
 * Introduction
   This document describes the design and implementation of the
-  project.
+  docker compose based application deployment and centralized logging
+  using Elasticsearch, Logstash and Kibana stack.
 
 * Design
-  Wordpress service runs inside a container. ELK stack - Elastic
-  search, Logstash and Kibana runs from a three different containers.
+  The infrastructure is setup in the cloud environment - AWS. An EC2
+  instance is created with the minimal requirement. The rational
+  behind resource requirement of an EC2 instance is discussed below.
+  
+  Inside the EC2 instance, the services are setup in a container based
+  system. Here we have mainly four services:
+  1. Elasticsearch
+  2. Logstash
+  3. Kibana
+  4. Application - Wordpress
+
+  So we will have four docker container in our setup.
+
+  The provisioning of the aws infrastructure and configuring the
+  instance is done via Ansible. Ansible server runs inside the local
+  workstation, which connects to aws for provision of server and
+  configuring it.
+
+  The architecture design diagram is shown below:
 
   [[../arch/architecture-design-diagram.jpeg]]
 
-* ELK Stack
-  - Collect all logs.
-  - Make it searchable in fast and meaningful way.
-  - Use powerful analytics to summarize data across many dimensions.
-
 * Infrastructure Decision
   Blogging is not a resource intensive application. It does not
-  require compute intensive engine to run.
+  require high computation engine to run. When a user edits or publish
+  a post, database is updated. Its not something which need high
+  processing, memory power.
 
-  We need to make some assumptions about the usage of the blogging
-  application. Based on the assumptions we will decide the resources
-  to be allocated to the VM.
+  We make some assumptions about the usage of the blogging
+  application. Based on these assumptions we will decide the resources
+  to be allocated to the VM. 
 
-  Suppose there are 50 employees in the organization. From those
-  employees only few of them blogs. Lets assume they generate 10
-  blogs/week on an average. Each blog would be of size 4kb. So per
-  week 4*10 = 40kb of data will be generated. And per month 40*4 =
-  160kb. Per year it would be around 2mb. So disk usage is not much.
-  We can go with 512mb of hard disk.
+  Suppose there are 50 bloggers who blogs using the application. Lets
+  assume they generate 10 blogs/week on an average. Each blog would be
+  of size 4kb. So per week 4*10 = 40kb of data will be generated. And
+  per month 40*4 = 160kb. Per year it would be around 2mb. So disk
+  usage is not much. We can go with 512mb of hard disk.
 
-  ELK is based on java. jvm hogs high amount of memory. We will need
-  atleast 4gb of memory, with single processor.
+  ELK is based on java. Java virtual machine consumes high amount of
+  memory at runtime. We will need atleast 4gb of memory, with single
+  processor.
 
-* Provisioning of AWS instance (Manual)
-** EC2 details
-   1. os: ubuntu-14.04 server 64-bit
-   2. 30 GB Hard disk
-   3. Public ip: 52.34.60.217
-   4. Region: Oregon
-   5. Open ports:
+* ELK Stack
+** ElasticSearch
+   1. JSON Document-oriented search engine
+   2. Built on top of Apache Lucene
+   3. Schema Free / Schema-Less
+   4. Scales Up + Out
+   5. refer:
+      https://info.elastic.co/2016-03-AB-Test-Getting-Started-ES_Video.html?aliId=43498650
+
+** Kibana
+   1. Allows to create dashboard.
+   2. We can visualize data.
+   3. refer:
+      https://www.elastic.co/webinars/kibana-101-get-started-with-visualizations?baymax=rtp&elektra=products&iesrc=ctr
+
+** Logstash
+   1. log parser.
+   2. Collect all logs.
+   3. Make it searchable in fast and meaningful way.
+   4. Use powerful analytics to summarize data across many dimensions.
+   5. refer:
+      https://www.elastic.co/webinars/logstash-0-60-in-60?baymax=rtp&elektra=products&iesrc=ctr
+* Docker
+  The concepts of docker are discussed in my another repo at:
+  https://github.com/ayogi/docker/blob/master/docker.org. I am
+  maintaining this from January 2016.
+
+** Access logs
+   To view the container logs:
+   #+BEGIN_EXAMPLE
+   docker logs -f <container-id>
+   #+END_EXAMPLE
+
+** Data volumes
+   A data volume is a specially designated directory within one or
+   more containers. Data volumes provide several useful features for
+   persistent or shared data.
+
+   Data volume are designed to persist data, independent of the
+   container's life cycle. Docker therefore never automatically
+   deletes volumes when you remove a container.
+
+** Docker logs
+   Docker captures the STDOUT and STDERR of each container process,
+   stores it on disk. User can query for the logs from the host
+   machine using
+   #+BEGIN_EXAMPLE
+   docker logs <container-id>
+   #+END_EXAMPLE
+
+   Using rsyslog service, we can forward the logs to logstash
+   container. Configure =/etc/rsyslog.d/logstash.conf= file in
+   wordpress container as follows:
+   #+BEGIN_EXAMPLE
+   *.* <ip-address-logstash>:<port>
+   #+END_EXAMPLE
+
+** Logging drivers
+   The container can have a logging driver. We can use the
+   =--log-driver= with the docker run command. All the logs generated
+   inside the container will be sent via log driver to a remote host.
+   #+BEGIN_EXAMPLE
+   docker run -t -d --log-driver=syslog --log-opt syslog-address=tcp://172.17.0.4:25826 app'
+   #+END_EXAMPLE
+* Setup
+** EC2 specs
+   - OS :: ubuntu-14.04 server 64-bit
+   - Hard Disk :: 30 GB
+   - RAM :: 4gb
+   - Type :: t1.micro
+   - Open ports ::
       - 5000: Logstash.
       - 9200: Elasticsearch HTTP
       - 9300: Elasticsearch TCP transport
@@ -50,9 +129,15 @@
       - 80: http
       - 22: ssh
 
-** Packages Installed
+** Launch instance
+   AWS instance is launched using Ansible playbook. Ansible
+   authenticates to aws using user access and secret key.
+
+** Configure instance
+   Instance is configured with docker, to create containers.
+
 *** Install docker 1.10
-    1. 
+    1. Install docker 
        #+BEGIN_EXAMPLE
        $ sudo apt-get update
        $ sudo apt-get install apt-transport-https ca-certificates
@@ -63,7 +148,8 @@
        #+BEGIN_EXAMPLE
        deb https://apt.dockerproject.org/repo ubuntu-trusty main
        #+END_EXAMPLE
-    3. 
+
+    3. Update and start service.
        #+BEGIN_EXAMPLE
        $ sudo apt-get update
        $ sudo apt-get purge lxc-docker
@@ -74,11 +160,12 @@
        $ sudo service docker start
        $ sudo docker run hello-world
        #+END_EXAMPLE
+
     4. Configure group, and then logout and logback in
        #+BEGIN_EXAMPLE
        $ sudo usermod -aG docker ubuntu
        #+END_EXAMPLE
-    5. 
+
 *** Install docker compose
     #+BEGIN_EXAMPLE
     $ sudo su -
@@ -86,67 +173,23 @@
     $ chmod +x /usr/local/bin/docker-compose
     $ docker-compose --version
     #+END_EXAMPLE
-** ELK Stack
-   - Create docker-compose.yml
-   - Create docker files for kibana, logstash
-   - Run compose
-     #+BEGIN_EXAMPLE
-     docker-compose -f docker-compose.yml up
-     #+END_EXAMPLE
-   - Add logs to elasticsearch
-     #+BEGIN_EXAMPLE
-     nc localhost 5000 < /var/log/auth.log
-     #+END_EXAMPLE
-   - Unable to access aws kibana due to ram exhaustion
-     #+BEGIN_EXAMPLE
-     Every 2.0s: free -m                                                                                                      Thu Jun 16 13:06:26 2016
-     
-             total       used       free     shared    buffers     cached
-     Mem:           588        581          6          0          0          2
-     -/+ buffers/cache:        579          9
-     Swap:            0          0          0
-     #+END_EXAMPLE
-* Access logs
-  To view the apache access logs:
-  #+BEGIN_EXAMPLE
-  docker logs -f <container-id>
-  #+END_EXAMPLE
-* Manage data in containers
-** Data volumes
-   A data volume is a specially designated directory within one or
-   more containers. Data volumes provide several useful features for
-   persistent or shared data.
+** Create containers
+*** ELK Stack
+    - Create docker-elk.yml
+    - Run compose
+      #+BEGIN_EXAMPLE
+      docker-compose -f docker-compose.yml up
+      #+END_EXAMPLE
+    - Test adding logs to elasticsearch
+      #+BEGIN_EXAMPLE
+      nc localhost 5000 < /var/log/auth.log
+      #+END_EXAMPLE
+      
 
-   Data volume are designed to persist data, independent of the
-   container's life cycle. Docker therefore never automatically
-   deletes volumes when you remove a container.
-
-* Docker logs
-  Docker captures the STDOUT and STDERR of each container process,
-  stores it on disk. User can query for the logs from the host machine
-  using
-  #+BEGIN_EXAMPLE
-  docker logs <container-id>
-  #+END_EXAMPLE
-
-  Using rsyslog service, we can forward the logs to logstash
-  container. Configure =/etc/rsyslog.d/logstash.conf= file in
-  wordpress container as follows:
-  #+BEGIN_EXAMPLE
-  *.* <ip-address-logstash>:<port>
-  #+END_EXAMPLE
-* Logging drivers
-  The container can have a logging driver. We can use the
-  =--log-driver= with the docker run command. All the logs generated
-  inside the container will be sent via log driver to a remote host.
-  #+BEGIN_EXAMPLE
-  docker run -t -d --log-driver=syslog --log-opt syslog-address=tcp://172.17.0.4:25826 app'
-  #+END_EXAMPLE
 * References
-  1. https://docs.docker.com/engine/userguide/containers/dockervolumes/
-  2. https://www.elastic.co/webinars/introduction-elk-stack
-  3. https://www.linode.com/docs/databases/elasticsearch/visualizing-apache-webserver-logs-in-the-elk-stack-on-debian-8
-  4. https://docs.docker.com/engine/userguide/containers/dockervolumes/
-  5. https://github.com/docker-library/php/issues/80
-  6. https://blog.logentries.com/2014/03/the-state-of-logging-on-docker/
-  7. https://docs.docker.com/engine/admin/logging/overview/
+  1. https://info.elastic.co/2016-03-AB-Test-Getting-Started-ES_Video.html?aliId=43498650
+  2. https://docs.docker.com/engine/userguide/containers/dockervolumes/
+  3. https://www.elastic.co/webinars/introduction-elk-stack
+  4. https://www.linode.com/docs/databases/elasticsearch/visualizing-apache-webserver-logs-in-the-elk-stack-on-debian-8
+  5. https://docs.docker.com/engine/userguide/containers/dockervolumes/
+  6. https://docs.docker.com/engine/admin/logging/overview/
