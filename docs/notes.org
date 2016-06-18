@@ -6,6 +6,7 @@
 * EC2 details
    1. os: ubuntu-14.04 server 64-bit
    2. 30 GB Hard disk
+   3. Name: wordpress-cloud-deployment
    3. Public ip: 52.34.60.217
    4. Region: Oregon
    5. Open ports:
