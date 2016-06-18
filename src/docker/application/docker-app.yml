@@ -9,7 +9,7 @@ wordpress:
    - logstash
  log_driver: syslog
  log_opt:
-   syslog-address: "tcp://172.17.0.3:25826"
+   syslog-address: "tcp://logstash-ip:25826"
 
 db:
  build: mysql/
