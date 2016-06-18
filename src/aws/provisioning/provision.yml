@@ -45,19 +45,3 @@
             Name: test
       wait: true
     register: ec2
-
-  ## Adding ip of created vms to hosts file
-  - name: Add all instance public IPs to host group
-    add_host: hostname={{ item.public_ip }} groups=ec2hosts
-    with_items: ec2.instances
-
-
-- name: Configure the instance
-  hosts: ec2hosts  
-  user: ec2-user
-  gather_facts: true
-
-  tasks:
-
-  - name: Check NTP service
-    service: name=ntpd state=started
