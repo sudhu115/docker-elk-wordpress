@@ -8,10 +8,10 @@
   tasks:
 
     - name: Copy application configuration
-      synchronize: src=../../docker/application dest=/home/ubuntu/application
+      synchronize: src=../../docker/application dest=/home/ubuntu/
 
     - name: Copy elk-stack configuration
-      synchronize: src=../../docker/configuration dest=/home/ubuntu/configuration
+      synchronize: src=../../docker/elk-stack dest=/home/ubuntu/
 
     - name: Build elk docker images
       command: docker-compose -f docker-elk.yml build
@@ -24,10 +24,10 @@
       register: logstashIp
 
     - name: Update ip address in docker-app.yml
-      lineinfile: dest=/home/ubuntu/application/docker-app.yml regexp=^deb   'line=syslog-address: "tcp://{{ logstashIp.stdout }}:25826"'
-    
+      lineinfile: 'dest=/home/ubuntu/application/docker-app.yml regexp="^   syslog-address"   line="   syslog-address: \"tcp://{{ logstashIp.stdout }}:25826\""'
+
     - name: Build applicaton docker images
       command: docker-compose -f docker-app.yml build
-      
+
     - name: Start dokcer container application services
       command: docker-compose -f docker-app.yml up -d
