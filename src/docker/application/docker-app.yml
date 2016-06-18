@@ -1,16 +1,18 @@
 wordpress:
  build: wordpress/
- links:
-   - db:mysql
+ container_name: wordpress
  ports:
-   - 8081:80
+   - "8081:80"
  log_driver: syslog
  log_opt:
-   syslog-address: "tcp://172.17.0.4:25826"
-# volumes:
-#  - /var/log/docker:/var/log/apache2
+   syslog-address: "tcp://logstash:25826"
+ links:
+   - db:mysql
+ external_links:
+   - logstash
 
 db:
  build: mysql/
+ container_name: db
  environment:
    MYSQL_ROOT_PASSWORD: example
