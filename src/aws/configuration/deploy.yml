@@ -1,0 +1,33 @@
+---
+
+- name: Deploy ELK Stack
+  hosts: vm
+  remote_user: ubuntu
+
+
+  tasks:
+
+    - name: Copy application configuration
+      synchronize: src=../../docker/application dest=/home/ubuntu/application
+
+    - name: Copy elk-stack configuration
+      synchronize: src=../../docker/configuration dest=/home/ubuntu/configuration
+
+    - name: Build elk docker images
+      command: docker-compose -f docker-elk.yml build
+
+    - name: Start docker container elk services
+      command: docker-compose -f docker-elk.yml up -d
+
+    - name: Get logstash IPAddress
+      command: docker inspect --format '{{ .NetworkSettings.IPAddress }}' logstash
+      register: logstashIp
+
+    - name: Update ip address in docker-app.yml
+      lineinfile: dest=/home/ubuntu/application/docker-app.yml regexp=^deb   'line=syslog-address: "tcp://{{ logstashIp.stdout }}:25826"'
+    
+    - name: Build applicaton docker images
+      command: docker-compose -f docker-app.yml build
+      
+    - name: Start dokcer container application services
+      command: docker-compose -f docker-app.yml up -d
