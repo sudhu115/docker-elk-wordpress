@@ -355,3 +355,5 @@
   7. http://docs.ansible.com/ansible/lineinfile_module.html
   8. http://docs.ansible.com/ansible/apt_module.html
   9. http://docs.ansible.com/ansible/guide_aws.html
+  10. http://docs.ansible.com/ansible/authorized_key_module.html
+  11. http://docs.ansible.com/ansible/user_module.html
