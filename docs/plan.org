@@ -5,33 +5,42 @@
 
 * Plan
   Following is the rough plan. This will evolve.
-  |-----------+-------------------------------------------|
-  | *Day      | Tasks*                                    |
-  |-----------+-------------------------------------------|
-  | Tuesday   | Create repo. Understand elasticsearch,    |
-  |           | logstash and kibana. Get AWS account.     |
-  |-----------+-------------------------------------------|
-  | Wednesday | Revise docker and create docker instance. |
-  |           | in aws.                                   |
-  |-----------+-------------------------------------------|
-  | Thursday  | Do the app deployment manually. Write     |
-  |           | docker file, compose.                     |
-  |-----------+-------------------------------------------|
-  | Friday    | Work on ansible playbooks, shell scripts. |
-  |-----------+-------------------------------------------|
-  | Saturday  | Multiple testing.                         |
-  |-----------+-------------------------------------------|
+  |-------+----------------------------------------------|
+  | *Day  | Tasks*                                       |
+  |-------+----------------------------------------------|
+  | Day 1 | Create git repo. Understand elasticsearch,   |
+  |       | logstash and kibana. Get AWS account.        |
+  |-------+----------------------------------------------|
+  | Day 2 | Revise docker concepts. Emulate docker setup |
+  |       | in local workstation.                        |
+  |-------+----------------------------------------------|
+  | Day 3 | Write docker-compose files. Test the setup   |
+  |       | in local workstation.                        |
+  |-------+----------------------------------------------|
+  | Day 4 | Feed application logs in to logstash.        |
+  |       | Visualize logs in kibana.                    |
+  |-------+----------------------------------------------|
+  | Day 5 | Setup AWS infrastructure using ansible.      |
+  |-------+----------------------------------------------|
 
-* Emulate target environment
-  - Setup docker in my workstation.
-  - Setup dockerized ELK setup.
-  - Setup docekerized wordpress.
-  - Visualize wordpress logs using kibana.
+* Progress
+** Day1
+   1. Understand and analyze the problem.
+   2. Create git repo.
+   3. Start writing thoughts about the project.
+** Day2
+   1. ELK stack
+   2. Docker - https://github.com/ayogi/docker/blob/master/docker.org
+   3. For some reason aws account is not accepting my card. So raised
+      support request to aws support team.
 
-* AWS Setup
-  - Instantiate AWS vm using Ansible.
-  - Configure instance using Ansible.
-  - Run dockerized wordpress setup.
-  - Run ELK setup.
-  - Create dashboard.
-  - Monitor logs using dashboard.
+** Day3
+   1. Setup docker daemon.
+   2. Setup elastic search, wordpress images.
+   3. Should be able to visualize the logs.
+** Day4
+   1. Feed wordpress apache logs to logstash container.
+   2. Visualize wordpress logs in kibana.
+   3. Now work on instantiating aws vm via ansible.
+
+** Day5
