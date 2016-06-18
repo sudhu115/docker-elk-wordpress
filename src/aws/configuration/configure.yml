@@ -53,3 +53,9 @@
     
     - name: add user to docker group
       command: sudo usermod -aG docker ubuntu
+
+    - name: get docker compose
+      shell: sudo curl -L https://github.com/docker/compose/releases/download/1.7.1/docker-compose-Linux-x86_64 > /usr/local/bin/docker-compose
+
+    - name: make docker-compose executable
+      shell: chmod +x /usr/local/bin/docker-compose
