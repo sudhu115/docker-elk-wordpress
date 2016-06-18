@@ -228,6 +228,9 @@
       #+END_EXAMPLE
   
    2. Perform following steps.
+      #+BEGIN_EXAMPLE
+      ansible-playbook configure.yml -i ../hosts --private-key  <path-to-keypair>
+      #+END_EXAMPLE
 
 *** Install docker 1.10
     1. Install docker 
