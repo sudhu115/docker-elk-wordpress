@@ -2,7 +2,8 @@
 
 - name: Configure the instance
   hosts: vm
-  remote_user: root
+  remote_user: ubuntu
+  sudo: true
 
 
   tasks:
