@@ -191,21 +191,43 @@
 
 ** Launch instance
    AWS instance is launched using Ansible playbook. Ansible
-   authenticates to aws using user access and secret key. Create
-   =aws-credentials.yml= file inside vars folder as follows:
-   #+BEGIN_EXAMPLE
-   AWS_ACCESS_KEY_ID=<key-id>
-   AWS_SECRET_ACCESS_KEY=<secret-key>
-   #+END_EXAMPLE
-   Or, we can set the environment variable
-   #+BEGIN_EXAMPLE
-   export AWS_ACCESS_KEY_ID=<key-id>
-   export AWS_SECRET_ACCESS_KEY=<secret-key>
-   #+END_EXAMPLE
+   authenticates to aws using user access and secret key. 
+
+   1. Create =aws-credentials.yml= file inside vars folder as follows:
+      #+BEGIN_EXAMPLE
+      AWS_ACCESS_KEY_ID=<key-id>
+      AWS_SECRET_ACCESS_KEY=<secret-key>
+      #+END_EXAMPLE
+      Or, we can set the environment variable
+      #+BEGIN_EXAMPLE
+      export AWS_ACCESS_KEY_ID=<key-id>
+      export AWS_SECRET_ACCESS_KEY=<secret-key>
+      #+END_EXAMPLE
+
+   2. Run playbook
+      #+BEGIN_EXAMPLE
+      ansible-playbook -i hosts provision.yml -vvvv
+      #+END_EXAMPLE
+
+   3. Now make a host entry in the hosts file, for the newly created
+      instance as given below. Replace the ip with the public-ip of
+      newly created instance.
+      #+BEGIN_EXAMPLE
+      [vm]
+      52.39.75.171
+      #+END_EXAMPLE
 
 ** Configure instance
-   Instance is configured via Ansible playbook. We install docker
-   engine inside the vm to create docker containers.
+   We will configure the instance via Ansible playbook. We install
+   docker engine inside the vm to create docker containers. Below are
+   the steps to be followed:
+   
+   1. Connect to the instance.
+      #+BEGIN_EXAMPLE
+      ssh -i /path/to/key-pair ubuntu@52.39.75.171
+      #+END_EXAMPLE
+  
+   2. Perform following steps.
 
 *** Install docker 1.10
     1. Install docker 
