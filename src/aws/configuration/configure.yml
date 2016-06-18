@@ -50,4 +50,6 @@
 
     - name: Start docker service
       service: name=docker state=started
-      
+    
+    - name: add user to docker group
+      command: sudo usermod -aG docker ubuntu
