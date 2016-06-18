@@ -3,43 +3,32 @@
 #+Email: yogeshiiith@gmail.com
 #+Date: <2016-06-17 Fri>
 
+* EC2 details
+   1. os: ubuntu-14.04 server 64-bit
+   2. 30 GB Hard disk
+   3. Public ip: 52.34.60.217
+   4. Region: Oregon
+   5. Open ports:
+      - 5000: Logstash.
+      - 9200: Elasticsearch HTTP
+      - 9300: Elasticsearch TCP transport
+      - 5601: Kibana
+      - 80: http
+      - 22: ssh
 
-* Tasks
-** Wednesday
-*** Elastic search stack
-    refer:
-    https://info.elastic.co/2016-03-AB-Test-Getting-Started-ES_Video.html?aliId=43498650
-**** ElasticSearch
-     1. JSON Document-oriented search engine
-     2. Built on top of Apache Lucene
-     3. Schema Free / Schema-Less
-     4. Scales Up + Out
-     5. refer:
-        https://info.elastic.co/2016-03-AB-Test-Getting-Started-ES_Video.html?aliId=43498650
-**** Kibana
-     1. Allows to create dashboard.
-     2. We can visualize data.
-     3. refer:
-        https://www.elastic.co/webinars/kibana-101-get-started-with-visualizations?baymax=rtp&elektra=products&iesrc=ctr
-**** Logstash
-     1. log parser
-     2. refer:
-        https://www.elastic.co/webinars/logstash-0-60-in-60?baymax=rtp&elektra=products&iesrc=ctr
-*** Docker
-    1. https://training.docker.com/self-paced-training
-    2. https://hub.docker.com/_/wordpress/
+* Emulate target environment
+  - Setup docker in my workstation.
+  - Setup dockerized ELK setup.
+  - Setup docekerized wordpress.
+  - Visualize wordpress logs using kibana.
 
-*** AWS account
-    For some reason aws account is not accepting my card. So raised
-    support request to aws support team.
+* AWS Setup
+  - Instantiate AWS vm using Ansible.
+  - Configure instance using Ansible.
+  - Run dockerized wordpress setup.
+  - Run ELK setup.
+  - Create dashboard.
+  - Monitor logs using dashboard.
 
-** Thursday
-   1. Create aws instance.
-   2. Setup docker daemon on it.
-   3. Setup elastic search, wordpress images.
-   4. Should be able to visualize the logs.
-** Friday
-   1. Feed wordpress apache logs to logstash container.
-   2. Visualize wordpress logs in kibana.
-   3. Now work on instantiating aws vm via ansible.
+
 
