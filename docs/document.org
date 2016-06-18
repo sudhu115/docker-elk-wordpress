@@ -160,6 +160,11 @@
    #+BEGIN_EXAMPLE
    docker run -t -d --log-driver=syslog --log-opt syslog-address=tcp://172.17.0.4:25826 app'
    #+END_EXAMPLE
+* Workstation Requirements
+  1. python
+  2. Ansible server
+  3. Boto
+
 * Setup
 ** EC2 specs
    - OS : ubuntu-14.04 server 64-bit
