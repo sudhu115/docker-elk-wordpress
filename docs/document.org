@@ -14,11 +14,12 @@
   behind resource requirement of an EC2 instance is discussed below.
   
   Inside the EC2 instance, the services are setup in a container based
-  system. Here we have mainly four services:
+  system. Here we have mainly five services:
   1. Elasticsearch
   2. Logstash
   3. Kibana
   4. Application - Wordpress
+  5. Mysql database
 
   So we will have four docker container in our setup.
 
@@ -193,7 +194,7 @@
       #+BEGIN_EXAMPLE
       docker-compose -f docker-elk.yml build
       #+END_EXAMPLE
-    - Command to run compose in background.
+    - Command to start services in background.
       #+BEGIN_EXAMPLE
       docker-compose -f docker-elk.yml up -d
       #+END_EXAMPLE
@@ -202,6 +203,39 @@
       nc localhost 5000 < /var/log/auth.log
       #+END_EXAMPLE
       
+*** Application
+    Application is configured via docker-compose file. It setups the
+    required wordress application in one container and database in
+    another container.
+
+    Replace the "ip-address" in the docker-app.yml file with the ip
+    address of logstash machine. Use following command to get the ip
+    address of logstash machine.
+
+    #+BEGIN_EXAMPLE
+    docker inspect logstash | grep IPAddress
+    #+END_EXAMPLE
+
+    - Command to build images
+      #+BEGIN_EXAMPLE
+      docker-compose -f docker-app.yml build
+      #+END_EXAMPLE
+
+    - Command to start services in background.
+      #+BEGIN_EXAMPLE
+      docker-compose -f docker-app.yml up -d
+      #+END_EXAMPLE
+
+* Install Wordpress
+  After the setup we can go to url: http::/localhost:8081 to install
+  the wordpress.
+
+* Visualizing logs in kibana
+  After setting everything we can now open the url -
+  http:://localhost:5601 to visualize the logs in kibana.
+
+  We can also open http://localhost:9200/_search?q=*&pretty to see the
+  log entries in elasticsearch.
 
 * References
   1. https://info.elastic.co/2016-03-AB-Test-Getting-Started-ES_Video.html?aliId=43498650
