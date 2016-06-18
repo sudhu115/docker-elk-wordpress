@@ -321,7 +321,7 @@
     address of logstash machine.
 
     #+BEGIN_EXAMPLE
-    docker inspect logstash | grep IPAddress
+    docker inspect --format '{{ .NetworkSettings.IPAddress }}' logstash
     #+END_EXAMPLE
 
     - Command to build images
@@ -338,7 +338,7 @@
   After the setup we can go to url: http::/localhost:8081 to install
   the wordpress.
 
-* Visualizing logs in kibana
+* Visualizing logs in Kibana
   After setting everything we can now open the url -
   http:://localhost:5601 to visualize the logs in kibana.
 
@@ -352,3 +352,6 @@
   4. https://www.linode.com/docs/databases/elasticsearch/visualizing-apache-webserver-logs-in-the-elk-stack-on-debian-8
   5. https://docs.docker.com/engine/userguide/containers/dockervolumes/
   6. https://docs.docker.com/engine/admin/logging/overview/
+  7. http://docs.ansible.com/ansible/lineinfile_module.html
+  8. http://docs.ansible.com/ansible/apt_module.html
+  9. http://docs.ansible.com/ansible/guide_aws.html
