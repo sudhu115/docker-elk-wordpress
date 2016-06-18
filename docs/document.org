@@ -222,17 +222,21 @@
    docker engine inside the vm to create docker containers. Below are
    the steps to be followed:
    
-   1. Connect to the instance.
+   1. Connect to the instance, to make a known_hosts entry in the host
+      machine.
       #+BEGIN_EXAMPLE
       ssh -i /path/to/key-pair ubuntu@52.39.75.171
       #+END_EXAMPLE
   
-   2. Perform following steps.
+   2. Run playbook to setup docker.
       #+BEGIN_EXAMPLE
       ansible-playbook configure.yml -i ../hosts --private-key  <path-to-keypair>
       #+END_EXAMPLE
 
-*** Install docker 1.10
+      Playbook installs docker-engine and docker-compose as described
+      below:
+
+*** Install docker
     1. Install docker 
        #+BEGIN_EXAMPLE
        $ sudo apt-get update
