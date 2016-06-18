@@ -1,0 +1,10 @@
+---
+
+- name: Configure the instance
+  hosts: vm
+  remote_user: root
+
+
+  tasks:
+    - name: update the machine
+      apt: update_cache=yes
