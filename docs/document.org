@@ -321,6 +321,46 @@
       #+BEGIN_EXAMPLE
       nc localhost 5000 < /var/log/auth.log
       #+END_EXAMPLE
+
+**** Elasticsearch configuration
+     We are not configuring elasticsearch, we are using the default
+     configuration.
+
+**** Logstash configuration
+     Logstash configuration file is at
+     =/etc/logstash/conf.d/logstash.conf=. We have configured its
+     input, filter and output parts. Input we setup to accept incoming
+     logs on tcp port 5000 and syslog logs on
+     port 25826. Corresponding to each incoming port we have to enable
+     the port mapping in the dockerfile. Logstash process the logs and
+     then sends it to elastic search on port 5601.
+
+**** Kibana configuration
+     Kibana configuration file is at
+     =/opt/kibana/config/kibana.yml=. We have configured following
+     directives inside it.
+     1. Port the kibana will run on:
+        #+BEGIN_EXAMPLE
+	server.port: 5601
+	#+END_EXAMPLE
+     2. The host to bind to and will accept connection from
+	#+BEGIN_EXAMPLE
+	server.host: "0.0.0.0"
+	#+END_EXAMPLE
+     3. Elasticsearch url
+	#+BEGIN_EXAMPLE
+	elasticsearch.url: 'http://elasticsearch:9200'
+	#+END_EXAMPLE
+     4. Preserving elasticsearch host - I really don't get this, what
+        it does.
+	#+BEGIN_EXAMPLE
+	elasticsearch.preserveHost: true
+	#+END_EXAMPLE
+     5. Kibana index name and default application
+	#+BEGIN_EXAMPLE
+	kibana.index: ".kibana"
+	kibana.defaultAppId: "discover"
+	#+END_EXAMPLE
       
 *** Application
     Application is configured via ansible playbook. Which internally
