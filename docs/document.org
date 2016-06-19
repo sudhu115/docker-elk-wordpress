@@ -10,47 +10,52 @@
 
 * Directory structure of this repo
   #+BEGIN_EXAMPLE
-  .
+.
 |-- arch
 |   |-- architecture-design-diagram.dia
 |   |-- architecture-design-diagram.jpeg
 |   `-- aws-ram-usage.png
 |-- docs
+|   |-- document.html
 |   |-- document.org
 |   |-- notes.org
-|   |-- personal-notes.org
 |   `-- plan.org
 |-- README.md
 `-- src
-    |-- aws
-    |   |-- hosts
-    |   |-- provision.yml
-    |   `-- vars
-    |       |-- aws-credentials.yml
-    |       `-- specs.yml
-    `-- docker
-        |-- application
-        |   |-- docker-app.yml
-        |   |-- mysql
-        |   |   `-- Dockerfile
-        |   `-- wordpress
-        |       `-- Dockerfile
-        `-- elk-stack
-            |-- docker-elk.yml
-            |-- elasticsearch
-            |   `-- Dockerfile
-            |-- filter
-            |-- kibana
-            |   |-- config
-            |   |   `-- kibana.yml
-            |   |-- Dockerfile
-            |   `-- sample-log-visualization
-            |       |-- kibana-visualization-1.png
-            |       `-- kibana-visualization-2.png
-            `-- logstash
-                |-- config
-                |   `-- logstash.conf
-                `-- Dockerfile
+    |-- configuration
+    |   |-- configure-ec2.yml
+    |   |-- deploy-app.yml
+    |   |-- deploy-elk.yml
+    |   `-- docker
+    |       |-- application
+    |       |   |-- docker-app.yml
+    |       |   |-- mysql
+    |       |   |   `-- Dockerfile
+    |       |   `-- wordpress
+    |       |       `-- Dockerfile
+    |       `-- elk-stack
+    |           |-- docker-elk.yml
+    |           |-- elasticsearch
+    |           |   `-- Dockerfile
+    |           |-- kibana
+    |           |   |-- config
+    |           |   |   `-- kibana.yml
+    |           |   |-- Dockerfile
+    |           |   `-- sample-log-visualization
+    |           |       |-- kibana-visualization-1.png
+    |           |       `-- kibana-visualization-2.png
+    |           `-- logstash
+    |               |-- config
+    |               |   `-- logstash.conf
+    |               `-- Dockerfile
+    |-- hosts
+    `-- provisioning
+        |-- provision.yml
+        `-- vars
+            |-- aws-credentials.yml
+            `-- specs.yml
+
+17 directories, 26 files
   #+END_EXAMPLE
 * Design
   The infrastructure is setup in the cloud environment - AWS. An EC2
@@ -198,7 +203,7 @@
           | Host          | 0.0.0.0:80, 0.0.0.0:22                                                     |
           |---------------+----------------------------------------------------------------------------|
 
-** Launch instance
+** Provisioning EC2
    AWS instance is launched using Ansible playbook. Ansible
    authenticates to aws using user access and secret key. 
 
@@ -226,7 +231,7 @@
       52.39.75.171
       #+END_EXAMPLE
 
-** Configure instance
+** Configuring EC2
    We will configure the instance via Ansible playbook. We install
    docker engine inside the vm to create docker containers. Below are
    the steps to be followed:
@@ -239,7 +244,7 @@
   
    2. Run playbook to setup docker.
       #+BEGIN_EXAMPLE
-      ansible-playbook configure.yml -i ../hosts --private-key  <path-to-keypair>
+      ansible-playbook configure-ec2.yml -i hosts --private-key  <path-to-keypair>
       #+END_EXAMPLE
 
       Playbook installs docker-engine and docker-compose as described
@@ -298,6 +303,13 @@
     client container to the server, will see an entry in =/etc/hosts=
     file of the client, something similar to.
 
+    Run ansible playbook as follows:
+    #+BEGIN_EXAMPLE
+    ansible-playbook -i ../hosts deploy-elk.yml --private-key <keypair>
+    #+END_EXAMPLE
+
+    The above playbook will essentially do following tasks.
+    
     - Command to build images
       #+BEGIN_EXAMPLE
       docker-compose -f docker-elk.yml build
@@ -316,13 +328,12 @@
     required wordress application in one container and database in
     another container.
 
-    Replace the "ip-address" in the docker-app.yml file with the ip
-    address of logstash machine. Use following command to get the ip
-    address of logstash machine.
-
+    Run the ansible playbook as follows:
     #+BEGIN_EXAMPLE
-    docker inspect --format '{{ .NetworkSettings.IPAddress }}' logstash
+    ansible-playbook -i ../hosts deploy-app.yml --private-key <keypair>
     #+END_EXAMPLE
+
+    The above playbook essentially does following tasks:
 
     - Command to build images
       #+BEGIN_EXAMPLE
