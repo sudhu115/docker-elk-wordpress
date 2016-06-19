@@ -15,10 +15,10 @@
       copy: src=../../docker/elk-stack dest=/home/ubuntu/
 
     - name: Build elk docker images
-      command: docker-compose -f docker-elk.yml build
+      command: docker-compose -f ~/elk-stack/docker-elk.yml build
 
     - name: Start docker container elk services
-      command: docker-compose -f docker-elk.yml up -d
+      command: docker-compose -f ~/elk-stack/docker-elk.yml up -d
 
     - name: Get logstash IPAddress
       command: docker inspect --format '{{ .NetworkSettings.IPAddress }}' logstash
@@ -28,7 +28,7 @@
       lineinfile: 'dest=/home/ubuntu/application/docker-app.yml regexp="^   syslog-address"   line="   syslog-address: \"tcp://{{ logstashIp.stdout }}:25826\""'
 
     - name: Build applicaton docker images
-      command: docker-compose -f docker-app.yml build
+      command: docker-compose -f ~/application/docker-app.yml build
 
     - name: Start dokcer container application services
-      command: docker-compose -f docker-app.yml up -d
+      command: docker-compose -f ~/application/docker-app.yml up -d
