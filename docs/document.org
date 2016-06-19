@@ -7,6 +7,47 @@
   This document describes the design and implementation of the
   docker compose based application deployment and centralized logging
   using Elasticsearch, Logstash and Kibana stack.
+* Design
+  The infrastructure is setup in the cloud environment - AWS. An EC2
+  instance is created with the minimal requirement. The rational
+  behind resource requirement of an EC2 instance is discussed below.
+  
+  Inside the EC2 instance, the services are setup in a container based
+  system. Here we have mainly five services:
+  1. Elasticsearch
+  2. Logstash
+  3. Kibana
+  4. Application - Wordpress
+  5. Mysql database
+
+  So we will have four docker container in our setup.
+
+  The provisioning of the aws infrastructure and configuring the
+  instance is done via Ansible. Ansible server runs inside the local
+  workstation, which connects to aws for provision of server and
+  configuring it.
+
+  The architecture design diagram is shown below. We are gone a setup
+  this.
+
+  [[../arch/architecture-design-diagram.jpeg]]
+
+** Communication network ports
+   |---------------+----------------------------------------------------------------------------|
+   | *Service      | Listens on*                                                             |
+   |---------------+----------------------------------------------------------------------------|
+   | wordpress     | 0.0.0.0:8081->80/tcp                                                       |
+   |---------------+----------------------------------------------------------------------------|
+   | mysqldb       | 3306/tcp                                                                   |
+   |---------------+----------------------------------------------------------------------------|
+   | kibana        | 0.0.0.0:5601->5601/tcp                                                     |
+   |---------------+----------------------------------------------------------------------------|
+   | logstash      | 0.0.0.0:5000->5000/tcp, 0.0.0.0:25826->25826/tcp, 0.0.0.0:12201->12201/udp |
+   |---------------+----------------------------------------------------------------------------|
+   | elasticsearch | 0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp                             |
+   |---------------+----------------------------------------------------------------------------|
+   | Host          | 0.0.0.0:22                                                                 |
+   |---------------+----------------------------------------------------------------------------|
 
 * Directory structure of this repo
   #+BEGIN_EXAMPLE
@@ -57,47 +98,6 @@
 
 17 directories, 26 files
   #+END_EXAMPLE
-* Design
-  The infrastructure is setup in the cloud environment - AWS. An EC2
-  instance is created with the minimal requirement. The rational
-  behind resource requirement of an EC2 instance is discussed below.
-  
-  Inside the EC2 instance, the services are setup in a container based
-  system. Here we have mainly five services:
-  1. Elasticsearch
-  2. Logstash
-  3. Kibana
-  4. Application - Wordpress
-  5. Mysql database
-
-  So we will have four docker container in our setup.
-
-  The provisioning of the aws infrastructure and configuring the
-  instance is done via Ansible. Ansible server runs inside the local
-  workstation, which connects to aws for provision of server and
-  configuring it.
-
-  The architecture design diagram is shown below:
-
-  [[../arch/architecture-design-diagram.jpeg]]
-
-** Communication network ports
-   |---------------+----------------------------------------------------------------------------|
-   | *Service      | Listens on*                                                             |
-   |---------------+----------------------------------------------------------------------------|
-   | wordpress     | 0.0.0.0:8081->80/tcp                                                       |
-   |---------------+----------------------------------------------------------------------------|
-   | mysqldb       | 3306/tcp                                                                   |
-   |---------------+----------------------------------------------------------------------------|
-   | kibana        | 0.0.0.0:5601->5601/tcp                                                     |
-   |---------------+----------------------------------------------------------------------------|
-   | logstash      | 0.0.0.0:5000->5000/tcp, 0.0.0.0:25826->25826/tcp, 0.0.0.0:12201->12201/udp |
-   |---------------+----------------------------------------------------------------------------|
-   | elasticsearch | 0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp                             |
-   |---------------+----------------------------------------------------------------------------|
-   | Host          | 0.0.0.0:22                                                                 |
-   |---------------+----------------------------------------------------------------------------|
-
 
 * Infrastructure Decision
   Blogging is not a resource intensive application. It does not
