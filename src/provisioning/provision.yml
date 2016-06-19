@@ -17,7 +17,7 @@
     ec2_group:
       ec2_access_key: "{{ AWS_ACCESS_KEY_ID }}"
       ec2_secret_key: "{{ AWS_SECRET_ACCESS_KEY }}"
-      name: test-security-group
+      name: docker-elk-wordpress-security-group
       description: "A Security group"
       region: "{{ ec2_region }}"
       rules:
@@ -25,6 +25,21 @@
           type: ssh
           from_port: 22
           to_port: 22
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          type: http
+          from_port: 5601
+          to_port: 5601
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          type: http
+          from_port: 9200
+          to_port: 9200
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          type: http
+          from_port: 8081
+          to_port: 8081
           cidr_ip: 0.0.0.0/0
     register: basic_firewall
 
@@ -39,9 +54,9 @@
       image: "{{ ami_id }}"
       key_name: "{{ key_name }}"
       instance_tags:
-            Name: test
+            Name: docker-elk-wordpress
       exact_count: 1
       count_tag:
-            Name: test
+            Name: docker-elk-wordpress
       wait: true
     register: ec2
