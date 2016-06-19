@@ -15,4 +15,4 @@ db:
  build: mysql/
  container_name: db
  environment:
-   MYSQL_ROOT_PASSWORD: example
+   MYSQL_ROOT_PASSWORD: wordpress
