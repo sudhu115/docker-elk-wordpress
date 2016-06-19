@@ -343,19 +343,23 @@
         #+BEGIN_EXAMPLE
 	server.port: 5601
 	#+END_EXAMPLE
+
      2. The host to bind to and will accept connection from
 	#+BEGIN_EXAMPLE
 	server.host: "0.0.0.0"
 	#+END_EXAMPLE
+
      3. Elasticsearch url
 	#+BEGIN_EXAMPLE
 	elasticsearch.url: 'http://elasticsearch:9200'
 	#+END_EXAMPLE
+
      4. Preserving elasticsearch host - I really don't get this, what
         it does.
 	#+BEGIN_EXAMPLE
 	elasticsearch.preserveHost: true
 	#+END_EXAMPLE
+
      5. Kibana index name and default application
 	#+BEGIN_EXAMPLE
 	kibana.index: ".kibana"
@@ -384,6 +388,15 @@
       #+BEGIN_EXAMPLE
       docker-compose -f docker-app.yml up -d
       #+END_EXAMPLE
+
+**** Wordpress configuration
+     We are using default configuration of the wordpress. We are not
+     configuring it. For wordpress to work host machine's port 8081 is
+     mapped to port 80 of docker container. Wordpress container is
+     linked to db container.
+
+**** Mysql configuration
+     Mysql root password is set.
 
 * Install Wordpress
   After the setup we can go to url: [[http://<vm-ip>:8081]] to install
