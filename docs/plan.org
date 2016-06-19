@@ -22,6 +22,8 @@
   |-------+----------------------------------------------|
   | Day 5 | Setup AWS infrastructure using ansible.      |
   |-------+----------------------------------------------|
+  | Day 6 | Test complete setup multiple times           |
+  |-------+----------------------------------------------|
 
 * Progress
 ** Day1
@@ -45,6 +47,8 @@
 
 ** Day5
    - Document the setup process.
-   
-* Todo
+   - Write playbooks to setup elk and application via ansible
+** Day 6
+   - Test the setup.
+
 
