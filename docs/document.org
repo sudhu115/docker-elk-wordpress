@@ -81,6 +81,24 @@
 
   [[../arch/architecture-design-diagram.jpeg]]
 
+** Communication network ports
+   |---------------+----------------------------------------------------------------------------|
+   | *Service      | Listens on*                                                             |
+   |---------------+----------------------------------------------------------------------------|
+   | wordpress     | 0.0.0.0:8081->80/tcp                                                       |
+   |---------------+----------------------------------------------------------------------------|
+   | mysqldb       | 3306/tcp                                                                   |
+   |---------------+----------------------------------------------------------------------------|
+   | kibana        | 0.0.0.0:5601->5601/tcp                                                     |
+   |---------------+----------------------------------------------------------------------------|
+   | logstash      | 0.0.0.0:5000->5000/tcp, 0.0.0.0:25826->25826/tcp, 0.0.0.0:12201->12201/udp |
+   |---------------+----------------------------------------------------------------------------|
+   | elasticsearch | 0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp                             |
+   |---------------+----------------------------------------------------------------------------|
+   | Host          | 0.0.0.0:22                                                                 |
+   |---------------+----------------------------------------------------------------------------|
+
+
 * Infrastructure Decision
   Blogging is not a resource intensive application. It does not
   require high computation engine to run. When a user edits or publish
@@ -184,24 +202,11 @@
 ** EC2 specs
    - OS : ubuntu-14.04 server 64-bit
    - Hard Disk : 30 GB
-   - RAM : 4gb
-   - Type : t1.micro
-   - Open ports :
-          |---------------+----------------------------------------------------------------------------|
-          | *Service      | Open ports*                                                                |
-          |---------------+----------------------------------------------------------------------------|
-          | wordpress     | 0.0.0.0:8081->80/tcp                                                       |
-          |---------------+----------------------------------------------------------------------------|
-          | mysqldb       | 3306/tcp                                                                   |
-          |---------------+----------------------------------------------------------------------------|
-          | kibana        | 0.0.0.0:5601->5601/tcp                                                     |
-          |---------------+----------------------------------------------------------------------------|
-          | logstash      | 0.0.0.0:5000->5000/tcp, 0.0.0.0:25826->25826/tcp, 0.0.0.0:12201->12201/udp |
-          |---------------+----------------------------------------------------------------------------|
-          | elasticsearch | 0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp                             |
-          |---------------+----------------------------------------------------------------------------|
-          | Host          | 0.0.0.0:80, 0.0.0.0:22                                                     |
-          |---------------+----------------------------------------------------------------------------|
+   - RAM : 7.5 gb
+   - Type : m3.large
+   - Ports open to outside world:
+     - ssh port 22
+     - tcp ports: 5601, 9200, 8081
 
 ** Provisioning EC2
    AWS instance is launched using Ansible playbook. Ansible
@@ -232,23 +237,15 @@
       #+END_EXAMPLE
 
 ** Configuring EC2
-   We will configure the instance via Ansible playbook. We install
-   docker engine inside the vm to create docker containers. Below are
-   the steps to be followed:
-   
-   1. Connect to the instance, to make a known_hosts entry in the host
-      machine.
-      #+BEGIN_EXAMPLE
-      ssh -i /path/to/key-pair ubuntu@52.39.75.171
-      #+END_EXAMPLE
-  
-   2. Run playbook to setup docker.
-      #+BEGIN_EXAMPLE
-      ansible-playbook configure-ec2.yml -i hosts --private-key  <path-to-keypair>
-      #+END_EXAMPLE
+   EC2 instance is configured via Ansible playbook. It installs the
+   docker-engine, docker-compose and other required packages.
 
-      Playbook installs docker-engine and docker-compose as described
-      below:
+   Run playbook to configure the ec2 container and setup docker.
+   #+BEGIN_EXAMPLE
+   ansible-playbook configure-ec2.yml -i hosts --private-key  <path-to-keypair>
+   #+END_EXAMPLE
+
+   Manual process to do the configuration is describe below:
 
 *** Install docker
     1. Install docker 
@@ -290,25 +287,27 @@
     #+END_EXAMPLE
 ** Create containers
 *** ELK Stack
-    ELK stack is configured via docker-compose file. Compose file
-    setup all the stack components one by one. Compose file builds the
-    customized images using the official images. It then creates the
-    container and configures them for our use.
+    ELK stack is configured via Ansible playbook. Which internally
+    uses docker-compose file to setup elk stack. Customized images are
+    build from the official docker images. Then services inside the
+    container are started.
     
     The services running inside the containers needs to communicate
     between each other. Logstash sends its parsed logs to
     elasticsearch container. That means they need to communicate over
     some specified port. Docker provides a way to allow communication
-    between containers, by setting =links= option. When we links
-    client container to the server, will see an entry in =/etc/hosts=
-    file of the client, something similar to.
+    between containers, by setting =links= option. Logs from the
+    application container are forwarded to logstash container using
+    syslog log driver. When we links client container to the server,
+    will see an entry in =/etc/hosts= file of the client.
 
-    Run ansible playbook as follows:
+    To do the setup run ansible playbook as follows:
     #+BEGIN_EXAMPLE
     ansible-playbook -i ../hosts deploy-elk.yml --private-key <keypair>
     #+END_EXAMPLE
 
-    The above playbook will essentially do following tasks.
+    Manual process to do the setup using compose file is described
+    below.
     
     - Command to build images
       #+BEGIN_EXAMPLE
@@ -324,16 +323,17 @@
       #+END_EXAMPLE
       
 *** Application
-    Application is configured via docker-compose file. It setups the
-    required wordress application in one container and database in
-    another container.
+    Application is configured via ansible playbook. Which internally
+    uses docker-compose file. It setups the wordress application in
+    one container and database service inside another container.
 
     Run the ansible playbook as follows:
     #+BEGIN_EXAMPLE
     ansible-playbook -i ../hosts deploy-app.yml --private-key <keypair>
     #+END_EXAMPLE
 
-    The above playbook essentially does following tasks:
+    Manual process to do the setup using compose file is described
+    below.
 
     - Command to build images
       #+BEGIN_EXAMPLE
@@ -346,25 +346,29 @@
       #+END_EXAMPLE
 
 * Install Wordpress
-  After the setup we can go to url: http::/localhost:8081 to install
+  After the setup we can go to url: [[http://<vm-ip>:8081]] to install
   the wordpress.
 
-* Visualizing logs in Kibana
+* Visualize logs in Kibana
   After setting everything we can now open the url -
-  http:://localhost:5601 to visualize the logs in kibana.
+  [[http://<vm-ip>:5601]] to visualize the logs in kibana.
 
-  We can also open http://localhost:9200/_search?q=*&pretty to see the
+  We can also open [[http://<vm-ip>:9200/_search?q%3D*&pretty][http://<vm-ip>:9200/_search?q=*&pretty]] to see the
   log entries in elasticsearch.
 
 * References
-  1. https://info.elastic.co/2016-03-AB-Test-Getting-Started-ES_Video.html?aliId=43498650
-  2. https://docs.docker.com/engine/userguide/containers/dockervolumes/
-  3. https://www.elastic.co/webinars/introduction-elk-stack
-  4. https://www.linode.com/docs/databases/elasticsearch/visualizing-apache-webserver-logs-in-the-elk-stack-on-debian-8
-  5. https://docs.docker.com/engine/userguide/containers/dockervolumes/
-  6. https://docs.docker.com/engine/admin/logging/overview/
-  7. http://docs.ansible.com/ansible/lineinfile_module.html
-  8. http://docs.ansible.com/ansible/apt_module.html
-  9. http://docs.ansible.com/ansible/guide_aws.html
-  10. http://docs.ansible.com/ansible/authorized_key_module.html
-  11. http://docs.ansible.com/ansible/user_module.html
+  1. https://hub.docker.com/_/wordpress/
+  2. https://hub.docker.com/_/elasticsearch/
+  3. https://hub.docker.com/_/logstash/
+  4. https://hub.docker.com/_/kibana/
+  5. https://info.elastic.co/2016-03-AB-Test-Getting-Started-ES_Video.html?aliId=43498650
+  6. https://docs.docker.com/engine/userguide/containers/dockervolumes/
+  7. https://www.elastic.co/webinars/introduction-elk-stack
+  8. https://www.linode.com/docs/databases/elasticsearch/visualizing-apache-webserver-logs-in-the-elk-stack-on-debian-8
+  9. https://docs.docker.com/engine/userguide/containers/dockervolumes/
+  10. https://docs.docker.com/engine/admin/logging/overview/
+  11. http://docs.ansible.com/ansible/lineinfile_module.html
+  12. http://docs.ansible.com/ansible/apt_module.html
+  13. http://docs.ansible.com/ansible/guide_aws.html
+  14. http://docs.ansible.com/ansible/authorized_key_module.html
+  15. http://docs.ansible.com/ansible/user_module.html
