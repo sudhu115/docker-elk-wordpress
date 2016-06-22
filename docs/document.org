@@ -393,8 +393,8 @@
      We are using default configuration of the wordpress. We are not
      configuring it. For wordpress to work host machine's port 8081 is
      mapped to port 80 of docker container. Wordpress container is
-     linked to db container.
-
+     linked to db container.     
+     
 **** Mysql configuration
      Mysql root password is set.
 
@@ -408,6 +408,101 @@
 
   We can also open [[http://<vm-ip>:9200/_search?q%3D*&pretty][http://<vm-ip>:9200/_search?q=*&pretty]] to see the
   log entries in elasticsearch.
+
+* Filebeat log collector
+  I tried configuring logstash with filebeat input but it was not
+  working. I configured my logstash.conf as follows:
+  #+BEGIN_EXAMPLE
+  input {
+  tcp {
+     port => 5000
+  }
+  gelf {}
+  syslog {
+     port => 25826
+     type => syslog
+  }
+  beats {
+  port => 5044
+  ssl => true
+  ssl_certificate => "/etc/pki/tls/certs/logstash-forwarder.crt"
+  ssl_key => "/etc/pki/tls/private/logstash-forwarder.key"
+  }
+  
+  }
+  
+  filter {
+   if [type] == "syslog" {
+     grok {
+       match => { "message" => "%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:syslog_hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}" }
+       add_field => [ "received_at", "%{@timestamp}" ]
+       add_field => [ "received_from", "%{host}" ]
+     }
+     syslog_pri { }
+     date {
+       match => [ "syslog_timestamp", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss" ]
+     }
+   }
+  }
+  
+  
+  output {
+  elasticsearch {
+     hosts => "elasticsearch:9200"
+  }
+  }
+  #+END_EXAMPLE
+
+  I generated the ip based ssl certificate also. In the logstash
+  container configuration seems to be fine.
+  #+BEGIN_EXAMPLE
+  $ service logstash configtest                                                                                                
+  Configuration OK
+  #+END_EXAMPLE
+  
+  The error is occurring at the wordpress container. I configured
+        filebeat plugin inside the container to forward logs to
+        logstash container, but it is having some issues which I am
+        not able to resolve right now.
+  
+  Configuration of /etc/filebeat/filebeat.yml is as follows:
+  #+BEGIN_EXAMPLE
+  filebeat:
+  prospectors:
+  -
+   paths:
+     - /var/log/auth.log
+     - /var/log/syslog
+  
+   input_type: log
+   
+   document_type: syslog
+  
+  registry_file: /var/lib/filebeat/registry
+  output:
+  logstash:
+  hosts: ["172.31.19.250:5044"]
+  bulk_max_size: 1024
+  
+  tls:
+   certificate_authorities: ["/etc/pki/tls/certs/logstash-forwarder.crt"]
+  
+  shipper:
+  
+  logging:
+  files:
+  rotateeverybytes: 10485760 # = 10MB
+  #+END_EXAMPLE
+  
+  The ip mentioned in the hosts in ubuntu host machine ip, not the
+  container's ip. I was trying if it works. It does not work with
+  client machine's ip either. When I restart filebeat service it is
+  throwing ssl connection error:
+  #+BEGIN_EXAMPLE
+  Restarting Sends log files to Logstash or directly to Elasticsearch.: filebeat2016/06/22 02:24:09.861547 transport.go:125: ERR SSL client failed to connect with: EOF
+  .
+  #+END_EXAMPLE
+
 
 * References
   1. https://hub.docker.com/_/wordpress/
