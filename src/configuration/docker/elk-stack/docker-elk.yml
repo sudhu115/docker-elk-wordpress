@@ -12,8 +12,8 @@ logstash:
     command: logstash -f /etc/logstash/conf.d/logstash.conf
     ports:
       - "5000:5000"
+      - "5044:5044"
       - "25826:25826"
-      - "12201:12201/udp"
     links:
       - elasticsearch
 
