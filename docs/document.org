@@ -410,99 +410,157 @@
   log entries in elasticsearch.
 
 * Filebeat log collector
-  I tried configuring logstash with filebeat input but it was not
-  working. I configured my logstash.conf as follows:
-  #+BEGIN_EXAMPLE
-  input {
-  tcp {
-     port => 5000
-  }
-  gelf {}
-  syslog {
-     port => 25826
-     type => syslog
-  }
-  beats {
-  port => 5044
-  ssl => true
-  ssl_certificate => "/etc/pki/tls/certs/logstash-forwarder.crt"
-  ssl_key => "/etc/pki/tls/private/logstash-forwarder.key"
-  }
-  
-  }
-  
-  filter {
-   if [type] == "syslog" {
-     grok {
+** Logstash container
+   I tried configuring logstash with filebeat input but it was not
+   working.
+
+   Following steps were performed to configure filebeat on logstash
+   container:
+   1. Create certificates directory:
+      #+BEGIN_EXAMPLE
+      $ sudo mkdir -p /etc/pki/tls/certs
+      $ sudo mkdir /etc/pki/tls/private
+      #+END_EXAMPLE
+
+   2. Edit =/etc/ssl/openssl.cnf= and find the =v3_ca= and add
+      following line under it
+      #+BEGIN_EXAMPLE
+      subjectAltName = IP: ELK_server_private_IP
+      #+END_EXAMPLE
+
+   3. Now generate ssl certificate and private key using following
+      command
+      #+BEGIN_EXAMPLE
+      cd /etc/pki/tls
+      sudo openssl req -config /etc/ssl/openssl.cnf -x509 -days 3650 -batch -nodes -newkey rsa:2048 -keyout private/logstash-forwarder.key -out certs/logstash-forwarder.crt
+      #+END_EXAMPLE
+
+   4. Configure =/etc/logstash/conf.d/logstash.conf= as follows:
+      #+BEGIN_EXAMPLE
+      input {
+      tcp {
+      port => 5000
+      }
+      gelf {}
+       syslog {
+       port => 25826
+       type => syslog
+       }
+       beats {
+       port => 5044
+       ssl => true
+       ssl_certificate => "/etc/pki/tls/certs/logstash-forwarder.crt"
+       ssl_key => "/etc/pki/tls/private/logstash-forwarder.key"
+       }
+       
+       }
+     
+       filter {
+       if [type] == "syslog" {
+       grok {
        match => { "message" => "%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:syslog_hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}" }
        add_field => [ "received_at", "%{@timestamp}" ]
        add_field => [ "received_from", "%{host}" ]
-     }
-     syslog_pri { }
-     date {
+       }
+       syslog_pri { }
+       date {
        match => [ "syslog_timestamp", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss" ]
-     }
-   }
-  }
-  
-  
-  output {
-  elasticsearch {
-     hosts => "elasticsearch:9200"
-  }
-  }
-  #+END_EXAMPLE
+       }
+       }
+       }
+       
+       
+       output {
+       elasticsearch {
+       hosts => "elasticsearch:9200"
+       }
+       }
+       #+END_EXAMPLE
 
-  I generated the ip based ssl certificate also. In the logstash
-  container configuration seems to be fine.
-  #+BEGIN_EXAMPLE
-  $ service logstash configtest                                                                                                
-  Configuration OK
-  #+END_EXAMPLE
+   5. Test configuration:
+      #+BEGIN_EXAMPLE
+      $ service logstash configtest                                                                                                
+      Configuration OK
+      #+END_EXAMPLE
   
-  The error is occurring at the wordpress container. I configured
-        filebeat plugin inside the container to forward logs to
-        logstash container, but it is having some issues which I am
-        not able to resolve right now.
+   6. Restart logstash service
+      #+BEGIN_EXAMPLE
+      sudo service logstash restart
+      #+END_EXAMPLE
   
-  Configuration of /etc/filebeat/filebeat.yml is as follows:
-  #+BEGIN_EXAMPLE
-  filebeat:
-  prospectors:
-  -
-   paths:
-     - /var/log/auth.log
-     - /var/log/syslog
-  
-   input_type: log
+** Wordpress container
+   1. Copy ssl certificates from logstash container to the wordpress
+      container:
+      #+BEGIN_EXAMPLE
+      $ sudo mkdir -p /etc/pki/tls/certs
+      #+END_EXAMPLE
+      Then copy =/etc/pki/tls/certs/logstash-forwarder.crt= here from
+      logstash container.
+
+   2. Install filebeat package
+      #+BEGIN_EXAMPLE
+      echo "deb https://packages.elastic.co/beats/apt stable main" |  sudo tee -a /etc/apt/sources.list.d/beats.list
+      wget -qO - https://packages.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+      sudo apt-get update
+      sudo apt-get install filebeat
+      #+END_EXAMPLE
+
+   3. Configure =/etc/filebeat/filebeat.yml= as follows:
+      #+BEGIN_EXAMPLE
+      filebeat:
+      prospectors:
+      -
+      paths:
+      - /var/log/auth.log
+      - /var/log/syslog
+      
+      input_type: log
+      
+      document_type: syslog
    
-   document_type: syslog
+      registry_file: /var/lib/filebeat/registry
+      output:
+      logstash:
+      hosts: ["172.17.0.4:5044"]  # logstash machine ip
+      bulk_max_size: 1024
+      
+      tls:
+      certificate_authorities: ["/etc/pki/tls/certs/logstash-forwarder.crt"]
+      
+      shipper:
+      
+      logging:
+      files:
+      rotateeverybytes: 10485760 # = 10MB
+      #+END_EXAMPLE
   
-  registry_file: /var/lib/filebeat/registry
-  output:
-  logstash:
-  hosts: ["172.31.19.250:5044"]
-  bulk_max_size: 1024
+   4. Restart filebeat service:
+      #+BEGIN_EXAMPLE
+      sudo service filebeat restart
+      #+END_EXAMPLE
+      
+      #+BEGIN_EXAMPLE
+      Restarting Sends log files to Logstash or directly to Elasticsearch.: filebeat.
+      #+END_EXAMPLE
   
-  tls:
-   certificate_authorities: ["/etc/pki/tls/certs/logstash-forwarder.crt"]
-  
-  shipper:
-  
-  logging:
-  files:
-  rotateeverybytes: 10485760 # = 10MB
-  #+END_EXAMPLE
-  
-  The ip mentioned in the hosts in ubuntu host machine ip, not the
-  container's ip. I was trying if it works. It does not work with
-  client machine's ip either. When I restart filebeat service it is
-  throwing ssl connection error:
-  #+BEGIN_EXAMPLE
-  Restarting Sends log files to Logstash or directly to Elasticsearch.: filebeat2016/06/22 02:24:09.861547 transport.go:125: ERR SSL client failed to connect with: EOF
-  .
-  #+END_EXAMPLE
-
+   5. Testing filebeat installation shows nothing
+      #+BEGIN_EXAMPLE
+      curl -XGET 'http://localhost:9200/filebeat-*/_search?pretty'
+      {
+      "took" : 1,
+      "timed_out" : false,
+      "_shards" : {
+      "total" : 0,
+      "successful" : 0,
+      "failed" : 0
+      },
+      "hits" : {
+      "total" : 0,
+      "max_score" : 0.0,
+      "hits" : [ ]
+      }
+      }
+      #+END_EXAMPLE
 
 * References
   1. https://hub.docker.com/_/wordpress/
