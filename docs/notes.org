@@ -32,8 +32,11 @@
   - Monitor logs using dashboard.
 
 
-
 * AWS cost for m3.large
   1. $0.133 per Hour oregon
   2. $0.154 per Hour cali
   3. $0.146 per Hour ireland
+* Visualization
+  - grok pattern
+  - visualize logs in a meaningful way
+  - 
