@@ -20,12 +20,12 @@
   4. Application - Wordpress
   5. Mysql database
 
-  So we will have four docker container in our setup.
+  So we will have five docker container in our setup.
 
   The provisioning of the aws infrastructure and configuring the
   instance is done via Ansible. Ansible server runs inside the local
-  workstation, which connects to aws for provision of server and
-  configuring it.
+  workstation, which connects to aws for provisioning of server and
+  its configuration.
 
   The architecture design diagram is shown below. We are gone a setup
   this.
@@ -34,7 +34,7 @@
 
 ** Communication network ports
    |---------------+----------------------------------------------------------------------------|
-   | *Service      | Listens on*                                                             |
+   | *Service      | Listens on*                                                                |
    |---------------+----------------------------------------------------------------------------|
    | wordpress     | 0.0.0.0:8081->80/tcp                                                       |
    |---------------+----------------------------------------------------------------------------|
@@ -103,17 +103,17 @@
   Blogging is not a resource intensive application. It does not
   require high computation engine to run. When a user edits or publish
   a post, database is updated. Its not something which need high
-  processing, memory power.
+  processing and memory power.
 
   We make some assumptions about the usage of the blogging
   application. Based on these assumptions we will decide the resources
   to be allocated to the VM. 
 
   Suppose there are 50 bloggers who blogs using the application. Lets
-  assume they generate 10 blogs/week on an average. Each blog would be
-  of size 4kb. So per week 4*10 = 40kb of data will be generated. And
-  per month 40*4 = 160kb. Per year it would be around 2mb. So disk
-  usage is not much. We can go with 512mb of hard disk.
+  assume they generate 10 blogs/week on an average. Suppose each blog
+  would be of size 4kb. So per week 4*10 = 40kb of data will be
+  generated. And per month 40*4 = 160kb. Per year it would be around
+  2mb. So disk usage is not much. We can go with 512mb of hard disk.
 
   ELK is based on java. Java virtual machine consumes high amount of
   memory at runtime. We will need atleast 4gb of memory, with single
@@ -144,7 +144,7 @@
 * Docker
   The concepts of docker are discussed in my another repo at:
   https://github.com/ayogi/docker/blob/master/docker.org. I am
-  maintaining this from January 2016.
+  maintaining this since January 2016.
 
 ** Access logs
    To view the container logs:
@@ -159,7 +159,7 @@
 
    Data volume are designed to persist data, independent of the
    container's life cycle. Docker therefore never automatically
-   deletes volumes when you remove a container.
+   deletes volumes when we remove a container.
 
 ** Docker logs
    Docker captures the STDOUT and STDERR of each container process,
@@ -181,11 +181,11 @@
    =--log-driver= with the docker run command. All the logs generated
    inside the container will be sent via log driver to a remote host.
    #+BEGIN_EXAMPLE
-   docker run -t -d --log-driver=syslog --log-opt syslog-address=tcp://172.17.0.4:25826 app'
+   docker run -t -d --log-driver=syslog --log-opt syslog-address=tcp://<logstash-ip>:25826 app'
    #+END_EXAMPLE
 * Workstation Requirements
   1. python2.7
-  2. Ansible server
+  2. Ansible
      #+BEGIN_EXAMPLE
      sudo apt-get install ansible
      #+END_EXAMPLE
@@ -204,7 +204,7 @@
    - Hard Disk : 30 GB
    - RAM : 7.5 gb
    - Type : m3.large
-   - Ports open to outside world:
+   - Ports open to public:
      - ssh port 22
      - tcp ports: 5601, 9200, 8081
 
@@ -255,12 +255,13 @@
        $ sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
        #+END_EXAMPLE
 
-    2. Edit =/etc/apt/sources.list.d/docker.list= file
+    2. Edit =/etc/apt/sources.list.d/docker.list= file and add
+       following line in it
        #+BEGIN_EXAMPLE
        deb https://apt.dockerproject.org/repo ubuntu-trusty main
        #+END_EXAMPLE
 
-    3. Update and start service.
+    3. Update and start docker service.
        #+BEGIN_EXAMPLE
        $ sudo apt-get update
        $ sudo apt-get purge lxc-docker
@@ -333,7 +334,7 @@
      logs on tcp port 5000 and syslog logs on
      port 25826. Corresponding to each incoming port we have to enable
      the port mapping in the dockerfile. Logstash process the logs and
-     then sends it to elastic search on port 5601.
+     then sends it to elasticsearch on port 5601.
 
 **** Kibana configuration
      Kibana configuration file is at
@@ -391,9 +392,9 @@
 
 **** Wordpress configuration
      We are using default configuration of the wordpress. We are not
-     configuring it. For wordpress to work host machine's port 8081 is
-     mapped to port 80 of docker container. Wordpress container is
-     linked to db container.     
+     configuring it. For wordpress to work, host machine's port 8081
+     is mapped to port 80 of docker container. Wordpress container is
+     linked to db container.
      
 **** Mysql configuration
      Mysql root password is set.
@@ -410,10 +411,10 @@
   log entries in elasticsearch.
 
 * Filebeat log collector
-** Logstash container
-   I tried configuring logstash with filebeat input but it was not
-   working.
+  I tried configuring logstash with filebeat input but when I tested
+  the setup, there were no logs getting saved in elasticsearch.
 
+** Logstash container
    Following steps were performed to configure filebeat on logstash
    container:
    1. Create certificates directory:
@@ -536,10 +537,7 @@
   
    4. Restart filebeat service:
       #+BEGIN_EXAMPLE
-      sudo service filebeat restart
-      #+END_EXAMPLE
-      
-      #+BEGIN_EXAMPLE
+      $ sudo service filebeat restart
       Restarting Sends log files to Logstash or directly to Elasticsearch.: filebeat.
       #+END_EXAMPLE
   
@@ -563,18 +561,28 @@
       #+END_EXAMPLE
 
 * References
-  1. https://hub.docker.com/_/wordpress/
-  2. https://hub.docker.com/_/elasticsearch/
-  3. https://hub.docker.com/_/logstash/
-  4. https://hub.docker.com/_/kibana/
-  5. https://info.elastic.co/2016-03-AB-Test-Getting-Started-ES_Video.html?aliId=43498650
+  1. https://hub.docker.com/_/wordpress/ (wordpress official image)
+  2. https://hub.docker.com/_/elasticsearch/ (elasticsearch official
+     image)
+  3. https://hub.docker.com/_/logstash/ (logstash official image)
+  4. https://hub.docker.com/_/kibana/ (kibana official image)
+  5. https://docs.docker.com/engine/admin/logging/overview/ (logging
+     in docker)
   6. https://docs.docker.com/engine/userguide/containers/dockervolumes/
-  7. https://www.elastic.co/webinars/introduction-elk-stack
-  8. https://www.linode.com/docs/databases/elasticsearch/visualizing-apache-webserver-logs-in-the-elk-stack-on-debian-8
-  9. https://docs.docker.com/engine/userguide/containers/dockervolumes/
-  10. https://docs.docker.com/engine/admin/logging/overview/
-  11. http://docs.ansible.com/ansible/lineinfile_module.html
-  12. http://docs.ansible.com/ansible/apt_module.html
-  13. http://docs.ansible.com/ansible/guide_aws.html
-  14. http://docs.ansible.com/ansible/authorized_key_module.html
-  15. http://docs.ansible.com/ansible/user_module.html
+     (docker volumes)
+  7. https://info.elastic.co/2016-03-AB-Test-Getting-Started-ES_Video.html?aliId=43498650
+     (elasticsearch introduction)
+  8. https://www.elastic.co/webinars/introduction-elk-stack
+     (elasticsearch introduction)
+  9. https://www.linode.com/docs/databases/elasticsearch/visualizing-apache-webserver-logs-in-the-elk-stack-on-debian-8
+     (visualize logs in kibana)
+  10. http://docs.ansible.com/ansible/lineinfile_module.html (ansible
+      lineinfile module)
+  11. http://docs.ansible.com/ansible/apt_module.html (ansible apt
+      module)
+  12. http://docs.ansible.com/ansible/guide_aws.html (ansible aws
+      guide)
+  13. http://docs.ansible.com/ansible/authorized_key_module.html
+      (ansible authorized key module)
+  14. http://docs.ansible.com/ansible/user_module.html (ansible user
+      module)
